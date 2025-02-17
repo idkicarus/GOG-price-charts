@@ -22,7 +22,7 @@ This script has only been tested with [Tampermonkey](https://addons.mozilla.org/
 
 2. If prompted, restart the browser.
 
-3. Click to install from your preferred source: [GitHub](https://raw.githubusercontent.com/idkicarus/gog-price-charts/main/gog-price-chart.user.js) or [Greasy Fork](https://greasyfork.org/en/scripts/527267-gogdb-price-charts).
+3. Click to install from your preferred source: [GitHub](https://raw.githubusercontent.com/idkicarus/GOG-price-charts/main/gog-price-chart.user.js) or [Greasy Fork](https://greasyfork.org/en/scripts/527267-gogdb-price-charts).
 
 
 ## Issues
