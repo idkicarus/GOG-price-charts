@@ -6,7 +6,7 @@ This userscript fetches historical price data from [GOG DB](https://www.gogdb.or
 The script only fetches data when you view an individual game's product page. Also, it caches data for 24 hours to limit unnecessary requests to GOG DB.
 
 ## Preview
-![Price chart](images/preview_GOG-DB-price-chart.png "Price history for Cyberpunk 2077")
+![Price chart](Images/preview_GOG-DB-price-chart.png "Price history for Cyberpunk 2077")
 
 
 ## Compatibility
