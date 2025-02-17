@@ -1,4 +1,4 @@
-# GOG Wishlist - Sort by Price (Dropdown/Button)
+# GOG Price Charts
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 This userscript fetches historical price data from [GOG DB](https://www.gogdb.org/), then displays a price chart on each game's product page along with the lowest price. This helps you decide whether to buy a game now or wait for a better price.
