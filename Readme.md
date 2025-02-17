@@ -1,9 +1,9 @@
 # GOG Price Charts
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-This userscript fetches historical price data from [GOG DB](https://www.gogdb.org/), then displays a price chart on each game's product page along with the lowest price. This helps you decide whether to buy a game now or wait for a better price.
+This userscript fetches historical price data from [GOG DB](https://www.gogdb.org/), then displays a price chart along with the lowest price. This helps you decide whether to buy a game now or wait for a better price.
 
-The script only fetches data when you view an individual game's product page. Also, it caches data for 24 hours to limit unnecessary requests to GOG DB.
+The script only fetches data when you view an individual game's product page. Also, price data is cached for 24 hours to limit unnecessary requests to GOG DB.
 
 ## Preview
 ![Price chart](Images/preview_GOG-DB-price-chart.png "Price history for Cyberpunk 2077")
@@ -23,7 +23,3 @@ This script has only been tested with [Tampermonkey](https://addons.mozilla.org/
 2. If prompted, restart the browser.
 
 3. Click to install from your preferred source: [GitHub](https://raw.githubusercontent.com/idkicarus/GOG-price-charts/main/gog-price-chart.user.js) or [Greasy Fork](https://greasyfork.org/en/scripts/527267-gogdb-price-charts).
-
-
-## Issues
-[Report an issue](https://github.com/idkicarus/gog-wishlist-sort/issues).
