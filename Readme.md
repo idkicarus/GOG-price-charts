@@ -24,6 +24,6 @@ This script has only been tested with [Tampermonkey](https://addons.mozilla.org/
 
 3. Install the script from your preferred source: [GitHub](https://raw.githubusercontent.com/idkicarus/GOG-price-charts/main/gog-price-chart.user.js) or [Greasy Fork](https://greasyfork.org/en/scripts/527267-gogdb-price-charts).
 
-4. Visit a product page on GOG. The first time you visit with the script enabled your script manager will ask whether you want to allow access to a cross-origin resource at the domain www.gogdb.org. Click allow/accept. If you deny access to wwww.gogdb.org, the script won't be able to fetch any past price data.
+4. Visit a product page on GOG. The first time you visit with the script enabled your script manager will ask whether you want to allow access to a cross-origin resource at the domain www.gogdb.org. Click allow/accept. If you deny access, the script won't be able to fetch any past price data.
 
 ![Script approval](Images/preview_cross-origin-resource.png "Cross-origin resource approval")
