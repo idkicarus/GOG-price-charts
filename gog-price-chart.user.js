@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name            GOGDB Price Charts
+// @name            GOG - Price Charts
 // @namespace       https://github.com/idkicarus/
 // @homepageURL     https://github.com/idkicarus/GOG-price-charts
 // @supportURL      https://github.com/idkicarus/GOG-price-charts/issues
