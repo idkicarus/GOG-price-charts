@@ -20,7 +20,7 @@
 
     const DEBUG_MODE = false; // Enable debug mode for logging errors and status messages during script execution.
     const CACHE_KEY_PREFIX = "gogdb_price_"; // Define a prefix for cache keys used to store API responses. This helps uniquely identify data for specific products.
-    const CACHE_LENGTH = 24 * 60 * 60 * 1000; // 24 hours in milliseconds (1,000 ms per second, 60 s per minute, 60 mins per hour, 24 hrs per day)
+    const CACHE_LENGTH = 1000 * 60 * 60 * 24; // 24 hours in milliseconds (1,000 ms per second, 60 s per minute, 60 mins per hour, 24 hrs per day)
 
     /**
      * Injects static styles into the document for elements used by the script.
