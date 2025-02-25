@@ -4,7 +4,7 @@
 // @homepageURL     https://github.com/idkicarus/GOG-price-charts
 // @supportURL      https://github.com/idkicarus/GOG-price-charts/issues
 // @match           https://www.gog.com/*/game/*
-// @description     Fetch price history from GOGDB.org to generate and display price charts on GOG
+// @description     Fetches price history from GOGDB.org to generate price charts for games on GOG
 // @version         1.0
 // @grant           GM.xmlHttpRequest
 // @require         https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js
