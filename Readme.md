@@ -3,7 +3,7 @@
 
 This userscript fetches historical price data from [GOG DB](https://www.gogdb.org/), displays an interactive chart, and notes the lowest known sale price from GOG, which helps you decide whether to buy a game now or wait for a lower price.
 
-The script only fetches data when you view an individual game's product page. Each game's price history is cached for 24 hours to limit unnecessary requests to GOG DB. The length can be adjusted by editing line 23 of the script after installation.
+The script only fetches data when you view an individual game's product page. Each game's price history is cached for 24 hours to limit unnecessary requests to GOG DB. The cache length can be adjusted by editing line 23 of the script after installation.
 
 ## Screenshot
 ![Price chart](Images/preview_GOG-DB-price-chart.png "Price history for Cyberpunk 2077")
