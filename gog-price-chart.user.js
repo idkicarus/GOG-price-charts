@@ -5,7 +5,7 @@
 // @supportURL      https://github.com/idkicarus/GOG-price-charts/issues
 // @match           https://www.gog.com/*/game/*
 // @description     Fetches price history from GOGDB.org to generate price charts for games on GOG
-// @version         1.1
+// @version         1.1.1
 // @grant           GM.xmlHttpRequest
 // @grant           unsafeWindow
 // @require         https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js
@@ -23,6 +23,20 @@
     const DEBUG_MODE = false; // Enable debug mode for logging errors and status messages during script execution.
     const CACHE_KEY_PREFIX = "gogdb_price_"; // Define a prefix for cache keys used to store API responses. This helps uniquely identify data for specific products.
     const CACHE_LENGTH = 1000 * 60 * 60 * 24; // 24 hours in milliseconds (1,000 ms per second, 60 s per minute, 60 mins per hour, 24 hrs per day)
+    const DATE_LOCALE = navigator.languages?.[0] || navigator.language || "en-US"; // Use the browser's preferred locale, then fall back to English if unavailable.
+    // const DATE_LOCALE = "pl-PL"; // Manually change/override the chart date localization, for example "en-US", "de-DE", or "fr-FR".
+
+    /**
+     * Formats chart dates using the user-editable DATE_LOCALE setting.
+     * This keeps date formatting consistent between single-entry and multi-entry charts.
+     *
+     * @param {Date|string|number} date - Date value to format.
+     * @param {Object} options - Intl.DateTimeFormat options.
+     * @returns {string} Localized date string.
+     */
+    function formatChartDate(date, options) {
+        return new Intl.DateTimeFormat(DATE_LOCALE, options).format(new Date(date));
+    }
 
     /**
      * Writes a message to the console only when DEBUG_MODE is enabled.
@@ -85,6 +99,7 @@
             #gog_ph_placeholder {
                 height: 200px;
                 background-color: #e1e1e1;
+                color: #4c4c4c;
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -543,26 +558,12 @@
     }
 
     /**
-     * Creates a chart using Chart.js with multiple data points.
+     * Creates a chart using Chart.js.
+     * Handles both multiple price entries and the single-entry edge case.
      * @param {Array} labels - Array of dates for the x-axis.
      * @param {Array} prices - Array of prices for the y-axis.
      */
     function createChart(labels, prices) {
-        if (labels.length === 2) {
-            // Handle the case where there are only two data points.
-            createChartSingleEntry(labels, prices);
-        } else {
-            // Handle the case with multiple data points.
-            createChartMultipleEntries(labels, prices);
-        }
-    }
-
-    /**
-     * Creates a chart for multiple price entries.
-     * @param {Array} labels - Array of dates for the x-axis.
-     * @param {Array} prices - Array of prices for the y-axis.
-     */
-    function createChartMultipleEntries(labels, prices) {
         const canvas = document.getElementById("gog_ph_chart_canvas");
 
         if (!canvas) {
@@ -570,6 +571,7 @@
         }
 
         const ctx = canvas.getContext("2d"); // Get the 2D rendering context for the canvas.
+        const isSingleEntryChart = labels.length === 2; // Treat two generated points as the single-entry price history edge case.
 
         new Chart(ctx, {
             type: "line", // Specify the chart type as a line chart.
@@ -587,75 +589,21 @@
             options: {
                 scales: {
                     x: {
-                        type: "time", // Use a time scale for the x-axis.
-                        time: {
-                            tooltipFormat: "MMM d, yyyy", // Format for tooltips (i.e., short month, day, 4-digit year).
-                            displayFormats: {
-                                month: "MMM yyyy" // Format for month labels (i.e., short month, 4-digit year).
-                            }
-                        },
+                        type: isSingleEntryChart ? "category" : "time", // Use category scale for the single-entry edge case and time scale for normal price history.
                         ticks: {
-                            autoSkip: true, // Automatically skip ticks to avoid overcrowding.
-                            maxTicksLimit: Math.max(2, Math.floor(labels.length / 3)) // Limit the number of ticks based on the data length, but keep at least two.
-                        }
-                    },
-                    y: {
-                        beginAtZero: true, // Start the y-axis at zero.
-                        ticks: {
-                            callback: value => `$${Number(value).toFixed(2)}` // Format the y-axis values as currency.
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false // Disable the legend for simplicity.
-                    }
-                },
-                maintainAspectRatio: false // Allow the chart to resize dynamically.
-            }
-        });
-
-        document.getElementById("gog_ph_chart_canvas").style.visibility = "visible"; // Make the chart visible after rendering.
-    }
-
-    /**
-     * Creates a chart for a single price entry.
-     * @param {Array} labels - Array of two dates for the x-axis.
-     * @param {Array} prices - Array of two prices for the y-axis.
-     */
-    function createChartSingleEntry(labels, prices) {
-        const canvas = document.getElementById("gog_ph_chart_canvas");
-
-        if (!canvas) {
-            return;
-        }
-
-        const ctx = canvas.getContext("2d"); // Get the 2D rendering context for the canvas.
-
-        new Chart(ctx, {
-            type: "line", // Specify the chart type as a line chart.
-            data: {
-                labels, // Use the provided labels for the x-axis.
-                datasets: [{
-                    label: "Price", // Label for the dataset.
-                    borderColor: "rgb(241, 142, 0)", // Set the line color.
-                    backgroundColor: "rgba(241, 142, 0, 0.5)", // Set the fill color.
-                    data: prices, // Use the provided prices for the y-axis.
-                    stepped: true, // Use stepped lines to indicate discrete changes.
-                    fill: false // Disable filling under the line.
-                }]
-            },
-            options: {
-                scales: {
-                    x: {
-                        type: "category", // Use a category scale for the x-axis.
-                        ticks: {
-                            autoSkip: false, // Do not skip ticks.
+                            autoSkip: !isSingleEntryChart, // Do not skip ticks for the single-entry edge case.
+                            maxTicksLimit: isSingleEntryChart
+                                ? undefined
+                                : Math.max(2, Math.floor(labels.length / 3)), // Limit the number of ticks based on the data length, but keep at least two.
                             callback: function(value, index) {
-                                return labels[index].toLocaleDateString("en-US", {
+                                const dateValue = isSingleEntryChart
+                                    ? labels[index]
+                                    : value; // Category charts use the label index; time charts pass the tick date value directly.
+
+                                return formatChartDate(dateValue, {
                                     month: "short",
                                     year: "numeric"
-                                }); // Format x-axis labels as short month and year.
+                                }); // Format x-axis labels as short month and year using the user-editable date locale.
                             }
                         }
                     },
@@ -673,24 +621,24 @@
                     tooltip: {
                         callbacks: {
                             title: function(context) {
-                                const index = context[0].dataIndex;
+                                const dateValue = isSingleEntryChart
+                                    ? labels[context[0].dataIndex]
+                                    : context[0].parsed.x; // Category charts use the data index; time charts use the parsed x-axis date value.
 
-                                // Format the tooltip title to display the date as "Month Day, Year".
-                                return labels[index].toLocaleDateString("en-US", {
+                                return formatChartDate(dateValue, {
                                     month: "short",
                                     day: "numeric",
                                     year: "numeric"
-                                });
+                                }); // Format the tooltip title to display the localized date as short month, day, and year.
                             }
                         }
                     }
                 },
-                maintainAspectRatio: false // Allow the chart to dynamically resize without distorting the aspect ratio.
+                maintainAspectRatio: false // Allow the chart to resize dynamically.
             }
         });
 
-        // Make the chart visible once rendering is complete.
-        document.getElementById("gog_ph_chart_canvas").style.visibility = "visible";
+        document.getElementById("gog_ph_chart_canvas").style.visibility = "visible"; // Make the chart visible after rendering.
     }
 
     // Add the necessary static styles to the page.
