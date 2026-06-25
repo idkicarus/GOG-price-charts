@@ -5,7 +5,7 @@
 // @supportURL      https://github.com/idkicarus/GOG-price-charts/issues
 // @match           https://www.gog.com/*/game/*
 // @description     Fetches price history from GOGDB.org to generate price charts for games on GOG
-// @version         1.1.1
+// @version         1.1.2
 // @grant           GM.xmlHttpRequest
 // @grant           unsafeWindow
 // @require         https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js
@@ -187,7 +187,9 @@
 
         /**
          * Inserts the price history container before the selected target element.
-         * This is used as a fallback when the thumbnail section cannot be found.
+         * This is used as a constrained fallback because it keeps the chart inside
+         * the target element's existing parent/column instead of inserting it as a
+         * full-width direct child of the main page layout.
          */
         function insertBefore(targetElement) {
             if (!targetElement || !targetElement.parentNode) {
@@ -201,6 +203,32 @@
 
             targetElement.parentNode.insertBefore(placeholderDiv, targetElement);
             debugLog("Placed chart before:", targetElement);
+            return true;
+        }
+
+        /**
+         * Inserts the price history container inside a selected layout container.
+         * This is used on pages that do not have a thumbnail/video strip. Those pages
+         * may still have an otherwise empty media summary layout-container; placing
+         * the chart inside that container preserves GOG's normal content width.
+         */
+        function insertInside(containerElement, beforeElement = null) {
+            if (!containerElement) {
+                return false;
+            }
+
+            if (beforeElement && beforeElement.parentNode !== containerElement) {
+                return false;
+            }
+
+            if (placeholderDiv.parentNode === containerElement) {
+                if (!beforeElement || placeholderDiv.nextElementSibling === beforeElement) {
+                    return true;
+                }
+            }
+
+            containerElement.insertBefore(placeholderDiv, beforeElement);
+            debugLog("Placed chart inside:", containerElement);
             return true;
         }
 
@@ -228,17 +256,47 @@
         }
 
         /**
-         * Finds the Description section.
-         * This is a last-resort placement target that should still keep the chart below
-         * the main product media area.
+         * Finds the mostly empty media summary container GOG keeps in the page layout
+         * when no visible thumbnail/video strip exists.
+         *
+         * On pages without thumbnails, the previous fallback inserted the chart before
+         * the Description layout-container. That made #gog_ph_div a direct child of
+         * the wide .layout element, so the chart expanded across the screen. Inserting
+         * inside this media summary layout-container keeps the same constrained width
+         * used on normal product pages.
+         */
+        function findMediaSummaryPlacement() {
+            const mediaSummary = document.querySelector(".layout-container > .content-summary");
+
+            if (!mediaSummary) {
+                return null;
+            }
+
+            const mediaContainer = mediaSummary.closest(".layout-container");
+            const descriptionSection = findDescriptionSection();
+            const descriptionContainer = descriptionSection?.closest(".layout-container");
+
+            // Do not mistake the Description section's own container for the media area.
+            if (!mediaContainer || mediaContainer === descriptionContainer) {
+                return null;
+            }
+
+            return {
+                container: mediaContainer,
+                beforeElement: mediaSummary
+            };
+        }
+
+        /**
+         * Finds the Description section itself, not the outer layout container.
+         * Keeping the section as the insertion target prevents a last-resort fallback
+         * from placing the chart as a full-width sibling of GOG's layout containers.
          */
         function findDescriptionSection() {
-            const descriptionSection = document.querySelector(
+            return document.querySelector(
                 "[content-summary-section-id='description'], " +
                 "[selenium-id='ProductCardDescription']"
             );
-
-            return descriptionSection?.closest(".layout-container") || descriptionSection;
         }
 
         /**
@@ -260,10 +318,22 @@
                 return true;
             }
 
-            // Last fallback: place the chart before the Description section.
-            const descriptionContainer = findDescriptionSection();
+            // If there is no thumbnail/video strip, use GOG's existing media summary
+            // layout container so the chart keeps the normal product-page width.
+            const mediaSummaryPlacement = findMediaSummaryPlacement();
 
-            if (insertBefore(descriptionContainer)) {
+            if (
+                mediaSummaryPlacement &&
+                insertInside(mediaSummaryPlacement.container, mediaSummaryPlacement.beforeElement)
+            ) {
+                return true;
+            }
+
+            // Last fallback: place the chart inside the Description column before
+            // the Description section, not before the whole Description layout-container.
+            const descriptionSection = findDescriptionSection();
+
+            if (insertBefore(descriptionSection)) {
                 return true;
             }
 
